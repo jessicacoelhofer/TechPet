@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechPet - Clientes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e0e0df; /* Marrom claro */
+            color: #4a4a4a; /* Cor do texto */
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            background-color: #308fac; /* Azul turquesa */
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        main {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        main h2 {
+            color: #d36882; /* Rosa */
+            margin-bottom: 20px;
+        }
+        .table-container {
+            width: 100%;
+            max-width: 900px;
+            overflow-x: auto;
+            border-radius: 10px;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        table th, table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        table th {
+            background-color: #308fac; /* Azul turquesa */
+            color: white;
+            text-align: center;
+        }
+        table td {
+            text-align: center;
+        }
+        .btn {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 5px;
+            color: white;
+            background-color: #d36882; /* Rosa */
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .btn:hover {
+            background-color: #c05573; /* Rosa mais escuro */
+        }
+        .btn-new {
+            margin: 20px 0;
+            background-color: #308fac; /* Azul turquesa */
+        }
+        .btn-new:hover {
+            background-color: #287991; /* Azul turquesa escuro */
+        }
+        footer {
+            background-color: #308fac; /* Azul turquesa */
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+        .search-bar {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+        }
+        .search-bar input {
+            padding: 8px;
+            font-size: 16px;
+            width: 300px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>TechPet</h1>
+        <a href=" menu.php" style="color: white; text-decoration: none; font-weight: bold;">Voltar ao Menu</a>
+    </header>
+    <main>
+        <h2>Clientes Cadastrados</h2>
+
+        <!-- Campo de busca -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Buscar por nome..." onkeyup="filterClientes()">
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Endereço</th>
+                        <th>Telefone</th>
+                        <th>E-mail</th>
+                        <th>Tipo de Animal</th>
+                        <th>Nome do Animal</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="clientes-table-body">
+                    <!-- Os dados dos clientes serão inseridos aqui dinamicamente -->
+                </tbody>
+            </table>
+        </div>
+        <a href="cadastro.html" class="btn btn-new">Incluir Novo Cliente</a>
+    </main>
+    <footer>
+        <p>© 2024 TechPet - Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        let clientesData = []; // Armazenar os dados dos clientes
+
+        // Função para carregar os clientes da API e inseri-los na tabela
+        fetch('list_cliente.php')
+            .then(response => response.json())
+            .then(data => {
+                clientesData = data; // Armazena os dados dos clientes
+                const tableBody = document.getElementById('clientes-table-body');
+                tableBody.innerHTML = ''; // Limpa a tabela antes de adicionar os novos dados
+                
+                data.forEach(cliente => {
+                    // Cria uma linha para cada cliente
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `
+                        <td>${cliente.nome}</td>
+                        <td>${cliente.endereco}</td>
+                        <td>${cliente.telefone}</td>
+                        <td>${cliente.email}</td>
+                        <td>${cliente.animal}</td>
+                        <td>${cliente.nome_animal}</td>
+                        <td>
+                            <a href="atualizar.html?id=${cliente.cliente_id}" class="btn">Editar</a>
+                            <a href="#" class="btn" onclick="excluirCliente(${cliente.cliente_id})">Excluir</a>
+                        </td>
+                    `;
+
+                    tableBody.appendChild(row); // Adiciona a linha na tabela
+                });
+            })
+            .catch(error => {
+                console.error('Erro ao carregar os dados:', error);
+            });
+
+        // Função para excluir um cliente
+        function excluirCliente(clienteId) {
+            if (confirm('Tem certeza que deseja excluir este cliente?')) {
+                // Envia a requisição de exclusão para a API
+                fetch('delete_cliente.php', {
+                    method: 'POST', // Modificado para POST
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ cliente_id: clienteId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === 'Cliente deletado com sucesso!') {
+                        // Remove a linha da tabela
+                        alert('Cliente excluído com sucesso!');
+                        location.reload(); // Recarrega a página para refletir a exclusão
+                    } else {
+                        alert('Erro ao excluir o cliente!');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao excluir o cliente:', error);
+                });
+            }
+        }
+
+        // Função de filtro de clientes
+        function filterClientes() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const filteredClientes = clientesData.filter(cliente => cliente.nome.toLowerCase().includes(searchInput));
+
+            const tableBody = document.getElementById('clientes-table-body');
+            tableBody.innerHTML = ''; // Limpa a tabela antes de adicionar os novos dados
+
+            filteredClientes.forEach(cliente => {
+                // Cria uma linha para cada cliente filtrado
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>${cliente.nome}</td>
+                    <td>${cliente.endereco}</td>
+                    <td>${cliente.telefone}</td>
+                    <td>${cliente.email}</td>
+                    <td>${cliente.animal}</td>
+                    <td>${cliente.nome_animal}</td>
+                    <td>
+                        <a href="atualizar.html?id=${cliente.cliente_id}" class="btn">Editar</a>
+                        <a href="#" class="btn" onclick="excluirCliente(${cliente.cliente_id})">Excluir</a>
+                    </td>
+                `;
+
+                tableBody.appendChild(row); // Adiciona a linha na tabela
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechPet - Atualizar Cadastro</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e0e0df; /* Marrom claro */
+            color: #4a4a4a; /* Cor do texto */
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            background-color: #308fac; /* Azul turquesa */
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        main h1 {
+            color: #d36882; /* Rosa */
+            margin-bottom: 20px;
+        }
+        .form-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto; /* Centraliza horizontalmente */
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #308fac;
+        }
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 10px;
+            background-color: #308fac; /* Azul turquesa */
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            background-color: #287991; /* Azul turquesa escuro */
+        }
+        footer {
+            background-color: #308fac; /* Azul turquesa */
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+        .message {
+            color: green;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>TechPet</h1>
+        <a href="menu.php" style="color: white; text-decoration: none; font-weight: bold;">Voltar ao Menu</a>
+    </header>
+    <main>
+        <h1>Atualizar Cadastro de Cliente</h1>
+        <div class="form-container">
+            <form id="form-cadastrar" action="#" method="POST">
+                <div class="form-group">
+                    <label for="nome">Nome</label>
+                    <input type="text" id="nome" name="nome" placeholder="Digite o nome do cliente" required>
+                </div>
+                <div class="form-group">
+                    <label for="endereco">Endereço</label>
+                    <input type="text" id="endereco" name="endereco" placeholder="Digite o endereço" required>
+                </div>
+                <div class="form-group">
+                    <label for="telefone">Telefone</label>
+                    <input type="tel" id="telefone" name="telefone" placeholder="(XX) XXXXX-XXXX" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" placeholder="Digite o e-mail" required>
+                </div>
+                <div class="form-group">
+                    <label for="animal">Tipo de Animal</label>
+                    <input type="text" id="animal" name="animal" placeholder="Digite o animal" required>
+                </div>
+                <div class="form-group">
+                    <label for="nome_animal">Nome do Animal</label>
+                    <input type="text" id="nome_animal" name="nome_animal" placeholder="Digite o nome do animal" required>
+                </div>
+                <button type="submit" class="btn">Atualizar</button>
+            </form>
+            <br>
+            <div id="message" class="message"></div>
+        </div>
+    </main>
+    <footer>
+        <p>© 2024 TechPet - Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        // Função para obter o parâmetro da URL
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Carregar os dados do cliente ao carregar a página
+        const clienteId = getUrlParameter('id');
+        
+        if (clienteId) {
+            fetch(`get_cliente.php?id=${clienteId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data) {
+                        // Preencher o formulário com os dados do cliente
+                        document.getElementById('nome').value = data.nome;
+                        document.getElementById('endereco').value = data.endereco;
+                        document.getElementById('telefone').value = data.telefone;
+                        document.getElementById('email').value = data.email;
+                        document.getElementById('animal').value = data.animal;
+                        document.getElementById('nome_animal').value = data.nome_animal;
+                    } else {
+                        alert('Cliente não encontrado!');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar os dados do cliente:', error);
+                });
+        }
+
+        // Lógica para enviar a atualização
+        document.getElementById('form-cadastrar').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = {
+                cliente_id: clienteId,
+                nome: document.getElementById('nome').value,
+                endereco: document.getElementById('endereco').value,
+                telefone: document.getElementById('telefone').value,
+                email: document.getElementById('email').value,
+                animal: document.getElementById('animal').value,
+                nome_animal: document.getElementById('nome_animal').value
+            };
+
+            fetch('update_cliente.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('message').textContent = 'Cadastro atualizado com sucesso!';
+                } else {
+                    document.getElementById('message').textContent = 'Erro ao atualizar cadastro!';
+                    document.getElementById('message').style.color = 'red';
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao atualizar os dados:', error);
+            });
+        });
+    </script>
+</body>
+</html>
